@@ -44,7 +44,6 @@ void APlayerPawnController::MoveForwardPressed()
 	if (Pawn)
 	{
 		Pawn->bMoveForward = true;
-		Pawn->MovementInputVector.X = 1.0f;
 	}
 }
 
@@ -67,7 +66,6 @@ void APlayerPawnController::MoveBackwardsPressed()
 	if (Pawn)
 	{
 		Pawn->bMoveBackward = true;
-		Pawn->MovementInputVector.X = -1.0f;
 	}
 }
 
@@ -90,7 +88,6 @@ void APlayerPawnController::MoveRightPressed()
 	if (Pawn)
 	{
 		Pawn->bMoveRight = true;
-		Pawn->MovementInputVector.Y = 1.0f;
 	}
 }
 
@@ -113,7 +110,6 @@ void APlayerPawnController::MoveLeftPressed()
 	if (Pawn)
 	{
 		Pawn->bMoveLeft = true;
-		Pawn->MovementInputVector.Y = -1.0f;
 	}
 }
 

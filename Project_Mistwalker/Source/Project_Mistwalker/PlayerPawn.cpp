@@ -73,6 +73,7 @@ void APlayerPawn::Tick(float DeltaTime)
 	FRotator Rotation = PawnCamera->GetComponentRotation();
 	if (bFalling == false)
 	{
+		ChangeVelocity();
 		if (bCrouch == false)
 		{
 			MovementVector = Rotation.RotateVector(MovementInputVector)*sprintModifier; //move slower when crouching in general
@@ -136,6 +137,103 @@ void APlayerPawn::Tick(float DeltaTime)
 				AInteractableActor* InteractedActor = Cast<AInteractableActor>(BlockingActor);
 				InteractedActor->Interaction();
 			}
+		}
+	}
+}
+
+void APlayerPawn::ChangeVelocity()
+{
+	if (bMoveForward)
+	{
+		if (MovementInputVector.X < 1.0f)
+		{
+			if (MovementInputVector.X >= 0.0f)
+			{
+				MovementInputVector.X += standardAcceleration;
+			}
+			else
+			{
+				MovementInputVector.X += directionChangeAcceleration;
+			}
+		}
+	}
+	else	if (bMoveBackward)	//walk slower backwards
+	{	
+		if (MovementInputVector.X > -0.6f)
+		{
+			if (MovementInputVector.X <= 0.0f)
+			{
+				MovementInputVector.X -= standardAcceleration;
+			}
+			else
+			{
+				MovementInputVector.X -= directionChangeAcceleration;
+			}
+		}
+	}
+	else
+	{
+		if (MovementInputVector.X < -standardAcceleration && MovementInputVector.X > standardAcceleration)
+		{
+			if (MovementInputVector.X < -standardAcceleration)
+			{
+				MovementInputVector.X += standardAcceleration;
+			}
+			if (MovementInputVector.X > standardAcceleration)
+			{
+				MovementInputVector.X -= standardAcceleration;
+			}
+		}
+		else
+		{
+			MovementInputVector.X = 0.0f;
+		}
+	}
+	//walk a bit slower backwards
+	if (bMoveRight)
+	{
+		if (MovementInputVector.Y<0.8f)
+		{
+			if (MovementInputVector.Y >= 0.0f)
+			{
+				MovementInputVector.Y += standardAcceleration;
+			}
+			else
+			{
+				MovementInputVector.Y += directionChangeAcceleration;
+			}
+		}
+	}
+	else if (bMoveLeft)
+	{
+		if (MovementInputVector.Y > -0.8f)
+		{
+			if (MovementInputVector.Y <= 0.0f)
+			{
+				MovementInputVector.Y -= standardAcceleration;
+			}
+			else
+			{
+				MovementInputVector.Y -= directionChangeAcceleration;
+			}
+		}
+	}
+	else
+	{
+		if (MovementInputVector.Y < -standardAcceleration && MovementInputVector.Y > standardAcceleration)
+		{
+			if (MovementInputVector.Y < -standardAcceleration)
+			{
+				MovementInputVector.Y += standardAcceleration;
+			}
+			if (MovementInputVector.Y > standardAcceleration)
+			{
+				MovementInputVector.Y -= standardAcceleration;
+			}
+		}
+		else
+		{
+			MovementInputVector.Y = 0.0f;
 		}
 	}
 }
