@@ -2,6 +2,7 @@
 
 #include "PlayerPawn.h"
 #include "Camera/CameraComponent.h"
+#include "InteractableActor.h"
 #include "Runtime/Engine/Classes/Engine/StaticMesh.h"
 #include "Runtime/Engine/Classes/Materials/Material.h"
 #include "Runtime/CoreUObject/Public/UObject/UObjectGlobals.h"
@@ -17,7 +18,7 @@ APlayerPawn::APlayerPawn()
 	//collision box
 	CapsuleCollisionComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("RootComponent"));
 	RootComponent = CapsuleCollisionComponent;
-	CapsuleCollisionComponent->InitCapsuleSize(80.0f, 10.0f);
+	CapsuleCollisionComponent->InitCapsuleSize(50.0f, 90.0f);
 	CapsuleCollisionComponent->SetCollisionProfileName(TEXT("Pawn"));
 
 	//mesh
@@ -69,9 +70,9 @@ void APlayerPawn::Tick(float DeltaTime)
 		sprintModifier = 1.0f;
 	}
 
+	FRotator Rotation = PawnCamera->GetComponentRotation();
 	if (bFalling == false)
 	{
-		FRotator Rotation = PawnCamera->GetComponentRotation();
 		if (bCrouch == false)
 		{
 			MovementVector = Rotation.RotateVector(MovementInputVector)*sprintModifier; //move slower when crouching in general
@@ -112,6 +113,31 @@ void APlayerPawn::Tick(float DeltaTime)
 	CurrentAngle.Pitch = FMath::Clamp(CurrentAngle.Pitch, -90.0f, 90.0f);
 	CurrentAngle += DeltaAngle;
 	PawnCamera->SetRelativeRotation(CurrentAngle);
+
+	//interaction handling
+	ViewVector = Rotation.RotateVector(FVector(200.0f, 0.0f, 0.0f));
+	FCollisionQueryParams View_TraceParams = FCollisionQueryParams(FName(TEXT("View_TraceParams")), true, this);
+	View_TraceParams.bTraceComplex = true;
+	View_TraceParams.bTraceAsyncScene = true;
+	View_TraceParams.bReturnPhysicalMaterial = false;
+	FHitResult View_Hit(ForceInit);
+
+	//check if player looks at something nearby
+	GetWorld()->LineTraceSingleByChannel(View_Hit, PawnCamera->GetComponentLocation(), PawnCamera->GetComponentLocation() + ViewVector, ECC_Pawn, View_TraceParams);
+	if (View_Hit.bBlockingHit == true)
+	{
+		AActor* BlockingActor = View_Hit.GetActor();
+		if (BlockingActor)
+		{
+			//hit evaluation
+			if (BlockingActor->IsA(AInteractableActor::StaticClass()) && bInteracting == true)
+			{
+				bInteracting = false;
+				AInteractableActor* InteractedActor = Cast<AInteractableActor>(BlockingActor);
+				InteractedActor->Interaction();
+			}
+		}
+	}
 }
 
 UPawnMovementComponent* APlayerPawn::GetMovementComponent() const

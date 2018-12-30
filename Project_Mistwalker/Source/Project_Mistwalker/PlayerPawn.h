@@ -59,7 +59,9 @@ public:
 	bool bStandingUpBlocked = false;
 
 	//interaction
+	FVector ViewVector;
 	bool bInteracting = false;
+
 
 	//camera
 	FRotator DeltaAngle;
