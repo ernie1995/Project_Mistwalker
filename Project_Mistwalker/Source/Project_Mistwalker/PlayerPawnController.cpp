@@ -154,6 +154,10 @@ void APlayerPawnController::CrouchPressed()
 			if (Pawn->bFalling == false)
 			{
 				Pawn->bCrouch = true;
+				if (Pawn->MovementInputVector.X > 0.8f && Pawn->bSprint == true)
+				{
+
+				}
 			}
 		}
 		else
